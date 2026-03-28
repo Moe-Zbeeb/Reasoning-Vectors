@@ -1,16 +1,35 @@
 #!/usr/bin/env python3
-from trl import SFTConfig, SFTTrainer
+import json
+from pathlib import Path
+
 from datasets import load_dataset
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, TrainerCallback
+from trl import SFTConfig, SFTTrainer
 
 DATASET_PATH = "/home/zbibm/Reasoning-Vectors/datasets/openr1_25k.jsonl"
 MODEL_PATH = "/home/zbibm/Reasoning-Vectors/models/qwen1.5B"
+OUTPUT_DIR = Path("./output")
+LOGS_DIR = Path("./logs")
+
+
+class JsonlLoggerCallback(TrainerCallback):
+    def __init__(self, log_path: Path) -> None:
+        self.log_path = log_path
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if not logs:
+            return
+        record = {"step": state.global_step, "epoch": state.epoch, **logs}
+        with self.log_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
 
 print("Loading dataset...")
 dataset = load_dataset(
     "json",
     data_files=DATASET_PATH,
-    split="train"
+    split="train",
 )
 print(f"Loaded {len(dataset)} examples")
 
@@ -32,8 +51,13 @@ def format_chat(example):
 dataset = dataset.map(format_chat, num_proc=4)
 print(f"Formatted {len(dataset)} examples")
 
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+metrics_log_path = LOGS_DIR / "train_metrics.jsonl"
+summary_log_path = LOGS_DIR / "run_summary.json"
+
 config = SFTConfig(
-    output_dir="./output",
+    output_dir=str(OUTPUT_DIR),
     num_train_epochs=1,
     per_device_train_batch_size=16,
     gradient_accumulation_steps=2,
@@ -50,8 +74,8 @@ config = SFTConfig(
     seed=42,
     remove_unused_columns=True,
     dataloader_num_workers=2,
-    report_to=["tensorboard"],
-    logging_dir="./logs",
+    report_to="none",
+    logging_dir=str(LOGS_DIR),
 )
 
 print("Initializing trainer...")
@@ -60,6 +84,7 @@ trainer = SFTTrainer(
     args=config,
     train_dataset=dataset,
 )
+trainer.add_callback(JsonlLoggerCallback(metrics_log_path))
 
 print("\n" + "=" * 60)
 print(f"Dataset: {DATASET_PATH}")
@@ -72,17 +97,43 @@ print("Effective batch size: 32")
 print("Learning rate: 1e-5")
 print("Warmup steps: 5")
 print("Save steps: 50")
+print(f"Metrics log: {metrics_log_path}")
 print("=" * 60 + "\n")
+
+summary = {
+    "dataset_path": DATASET_PATH,
+    "model_path": MODEL_PATH,
+    "num_examples": len(dataset),
+    "num_train_epochs": 1,
+    "per_device_train_batch_size": 16,
+    "gradient_accumulation_steps": 2,
+    "effective_batch_size": 32,
+    "learning_rate": 1e-5,
+    "warmup_steps": 5,
+    "save_steps": 50,
+    "bf16": True,
+    "metrics_log": str(metrics_log_path),
+}
+summary_log_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
 print("Starting training...\n")
 train_result = trainer.train()
 
 print("\nSaving model...")
-trainer.save_model("./output/final-model")
+trainer.save_model(str(OUTPUT_DIR / "final-model"))
+trainer.state.save_to_json(str(LOGS_DIR / "trainer_state.json"))
+
+final_summary = {
+    **summary,
+    "final_loss": train_result.training_loss,
+    "global_step": trainer.state.global_step,
+}
+summary_log_path.write_text(json.dumps(final_summary, indent=2), encoding="utf-8")
 
 print("\n" + "=" * 60)
 print("TRAINING COMPLETE!")
 print("=" * 60)
 print(f"Final loss: {train_result.training_loss:.4f}")
-print("Model saved to: ./output/final-model")
+print(f"Model saved to: {OUTPUT_DIR / 'final-model'}")
+print(f"Trainer state saved to: {LOGS_DIR / 'trainer_state.json'}")
 print("=" * 60)
