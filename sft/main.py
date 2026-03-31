@@ -46,11 +46,11 @@ summary_log_path = LOGS_DIR / "run_summary.json"
 config = SFTConfig(
     output_dir=str(OUTPUT_DIR),
     num_train_epochs=1,
-    per_device_train_batch_size=16,
-    gradient_accumulation_steps=2,
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=8,
     learning_rate=1e-5,
     lr_scheduler_type="cosine",
-    warmup_steps=10,
+    warmup_steps=20,
     logging_steps=2,
     save_strategy="no",
     optim="paged_adamw_8bit",
@@ -80,12 +80,12 @@ print(f"Dataset: {DATASET_PATH}")
 print(f"Model: {MODEL_PATH}")
 print(f"Examples: {len(dataset)}")
 print("Epochs: 1")
-print("Batch size: 16")
-print("Gradient accumulation: 2")
-print("Effective batch size: 32")
+print("Batch size: 4")
+print("Gradient accumulation: 8")
+print("Effective batch size: 128 (4 GPUs x 4 x 8)")
 print("Learning rate: 1e-5")
 print("LR scheduler: cosine")
-print("Warmup steps: 10")
+print("Warmup steps: 20")
 print("Max length: 2048")
 print("Completion-only loss: True")
 print(f"Metrics log: {metrics_log_path}")
@@ -96,12 +96,12 @@ summary = {
     "model_path": MODEL_PATH,
     "num_examples": len(dataset),
     "num_train_epochs": 1,
-    "per_device_train_batch_size": 16,
-    "gradient_accumulation_steps": 2,
-    "effective_batch_size": 32,
+    "per_device_train_batch_size": 4,
+    "gradient_accumulation_steps": 8,
+    "effective_batch_size": 128,
     "learning_rate": 1e-5,
     "lr_scheduler": "cosine",
-    "warmup_steps": 10,
+    "warmup_steps": 20,
     "max_length": 2048,
     "completion_only_loss": True,
     "bf16": True,
