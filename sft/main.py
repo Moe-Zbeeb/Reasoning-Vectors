@@ -6,7 +6,7 @@ from datasets import load_dataset
 from transformers import AutoTokenizer, TrainerCallback
 from trl import SFTConfig, SFTTrainer
 
-DATASET_PATH = "/home/zbibm/Reasoning-Vectors/datasets/openr1_25k.jsonl"
+DATASET_PATH = "/home/zbibm/Reasoning-Vectors/datasets/mathinstruct_25k.jsonl"
 MODEL_PATH = "/home/zbibm/Reasoning-Vectors/models/qwen1.5B"
 OUTPUT_DIR = Path("./output")
 LOGS_DIR = Path("./logs")

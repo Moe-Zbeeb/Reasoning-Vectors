@@ -3,3 +3,5 @@ models/
 __pycache__/
 logs/
 output/
+eval_results/
+math_eval.log
