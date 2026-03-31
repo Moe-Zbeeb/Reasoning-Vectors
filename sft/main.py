@@ -50,7 +50,7 @@ config = SFTConfig(
     gradient_accumulation_steps=2,
     learning_rate=1e-5,
     lr_scheduler_type="cosine",
-    warmup_steps=40,
+    warmup_steps=10,
     logging_steps=2,
     save_strategy="no",
     optim="paged_adamw_8bit",
@@ -85,7 +85,7 @@ print("Gradient accumulation: 2")
 print("Effective batch size: 32")
 print("Learning rate: 1e-5")
 print("LR scheduler: cosine")
-print("Warmup steps: 40")
+print("Warmup steps: 10")
 print("Max length: 2048")
 print("Completion-only loss: True")
 print(f"Metrics log: {metrics_log_path}")
@@ -101,7 +101,7 @@ summary = {
     "effective_batch_size": 32,
     "learning_rate": 1e-5,
     "lr_scheduler": "cosine",
-    "warmup_steps": 40,
+    "warmup_steps": 10,
     "max_length": 2048,
     "completion_only_loss": True,
     "bf16": True,
