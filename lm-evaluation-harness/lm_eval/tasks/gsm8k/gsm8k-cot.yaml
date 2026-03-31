@@ -46,7 +46,7 @@ fewshot_config:
 filter_list:
 - filter:
   - function: regex
-    regex_pattern: The answer is (\-?[0-9\.\,]+).
+    regex_pattern: The answer is (\-?[0-9\.\,]+)\.?
   - function: take_first
   name: strict-match
 - filter:
