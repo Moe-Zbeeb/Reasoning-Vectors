@@ -33,23 +33,10 @@ dataset = load_dataset(
 )
 print(f"Loaded {len(dataset)} examples")
 
-print("Loading tokenizer and formatting dataset...")
+print("Loading tokenizer...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
-
-
-def format_chat(example):
-    text = tokenizer.apply_chat_template(
-        example["messages"],
-        tokenize=False,
-        add_generation_prompt=False,
-    )
-    return {"text": text}
-
-
-dataset = dataset.map(format_chat, num_proc=4)
-print(f"Formatted {len(dataset)} examples")
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
@@ -62,15 +49,16 @@ config = SFTConfig(
     per_device_train_batch_size=16,
     gradient_accumulation_steps=2,
     learning_rate=1e-5,
-    lr_scheduler_type="linear",
-    warmup_steps=5,
+    lr_scheduler_type="cosine",
+    warmup_steps=40,
     logging_steps=2,
-    save_steps=50,
-    save_total_limit=None,
+    save_strategy="no",
     optim="paged_adamw_8bit",
     gradient_checkpointing=True,
     bf16=True,
     max_grad_norm=1.0,
+    max_length=2048,
+    completion_only_loss=True,
     seed=42,
     remove_unused_columns=True,
     dataloader_num_workers=2,
@@ -83,6 +71,7 @@ trainer = SFTTrainer(
     model=MODEL_PATH,
     args=config,
     train_dataset=dataset,
+    processing_class=tokenizer,
 )
 trainer.add_callback(JsonlLoggerCallback(metrics_log_path))
 
@@ -95,8 +84,10 @@ print("Batch size: 16")
 print("Gradient accumulation: 2")
 print("Effective batch size: 32")
 print("Learning rate: 1e-5")
-print("Warmup steps: 5")
-print("Save steps: 50")
+print("LR scheduler: cosine")
+print("Warmup steps: 40")
+print("Max length: 2048")
+print("Completion-only loss: True")
 print(f"Metrics log: {metrics_log_path}")
 print("=" * 60 + "\n")
 
@@ -109,8 +100,10 @@ summary = {
     "gradient_accumulation_steps": 2,
     "effective_batch_size": 32,
     "learning_rate": 1e-5,
-    "warmup_steps": 5,
-    "save_steps": 50,
+    "lr_scheduler": "cosine",
+    "warmup_steps": 40,
+    "max_length": 2048,
+    "completion_only_loss": True,
     "bf16": True,
     "metrics_log": str(metrics_log_path),
 }
