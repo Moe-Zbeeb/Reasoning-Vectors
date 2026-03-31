@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#  accelerate launch --num_processes 4 --mixed_precision bf16 sft/main.py                                                                                    
+
 import json
 from pathlib import Path
 

@@ -16,7 +16,7 @@ PYTHON_BIN="/home/zbibm/miniconda3/envs/${ENV_NAME}/bin/python"
 PIP_BIN="/home/zbibm/miniconda3/envs/${ENV_NAME}/bin/pip"
 
 BASE_MODEL="$ROOT_DIR/models/qwen1.5B"
-SFT_MODEL="$ROOT_DIR/output/qwen1.5bMathSft"
+SFT_MODEL="$ROOT_DIR/models/output/sft/qwen1.5Bmath"
 
 TASKS=(
   gsm8k
