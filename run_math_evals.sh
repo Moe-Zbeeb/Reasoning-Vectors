@@ -179,10 +179,12 @@ def task_metric_priority(task: str):
         return ["acc_norm", "acc"]
     if task in {"agieval_math"}:
         return ["acc", "acc_norm"]
+    if task in {"minerva_math500", "hendrycks_math500"}:
+        return ["math_verify", "exact_match,flexible-extract", "exact_match"]
     return [
         "exact_match,flexible-extract",
-        "exact_match",
         "exact_match,strict-match",
+        "exact_match",
         "math_verify",
         "acc_norm",
         "acc",
@@ -251,7 +253,7 @@ for task in tasks:
     })
 
 lines = [
-    "| Task | Metric | Base qwen1.5B | SFT qwen1.5bMathSft | Delta | Base status | SFT status |",
+    "| Task | Metric | Base qwen1.5B | SFT qwen1.5Bmath | Delta | Base status | SFT status |",
     "|---|---|---:|---:|---:|---|---|",
 ]
 for row in rows:
