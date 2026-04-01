@@ -1,213 +1,103 @@
-# Evaluating `qwen1.5bMathSft`
+# Evaluation Guide
 
-This repo now contains:
+This guide covers how to evaluate models in this repo on math benchmarks using the local `lm-evaluation-harness` checkout.
 
-- Fine-tuned model: `/home/zbibm/Reasoning-Vectors/output/qwen1.5bMathSft`
-- Evaluation framework: `/home/zbibm/Reasoning-Vectors/lm-evaluation-harness`
+## Models
 
-This guide shows how to evaluate the model on GSM8K and several math benchmarks using the local `lm-evaluation-harness` checkout.
+| Model | Path | Description |
+|-------|------|-------------|
+| Base 1.5B | `models/qwen1.5B` | Qwen 1.5B base |
+| Base 3B | `models/qwen2.5-3b` | Qwen 2.5 3B base |
+| Base 7B | `models/qwen2.5-7b` | Qwen 2.5 7B base |
+| SFT 3B | `models/output/sft/qwen2.5-3b-math` | Fine-tuned on MathInstruct CoT |
 
-## 1. Environment
+## Benchmarks
 
-Use the `reasoning` environment:
+| Task | Type | Metric | Description |
+|------|------|--------|-------------|
+| `gsm8k` | Generative | flexible-extract | Grade school math word problems |
+| `gsm8k_cot` | Generative | flexible-extract | GSM8K with chain-of-thought |
+| `gsm_plus` | Generative | flexible-extract | Harder GSM8K variants |
+| `minerva_math500` | Generative | math_verify | MATH competition problems (500 subset) |
+| `hendrycks_math500` | Generative | math_verify | MATH benchmark (500 subset) |
+| `agieval_math` | Generative | acc | AGIEval math problems |
+| `agieval_sat_math` | Multiple choice | acc_norm | SAT math problems |
+
+## Environment
 
 ```bash
 conda activate reasoning
-cd ~/Reasoning-Vectors/lm-evaluation-harness
+cd ~/Reasoning-Vectors
 ```
 
-Install the harness with Hugging Face support if you have not already:
+## Running All Evaluations
+
+The main eval script runs all 7 benchmarks on both base and SFT models in parallel across 4 GPUs and writes a summary table:
 
 ```bash
-pip install -e ".[hf]"
+bash run_math_evals.sh
 ```
 
-## 2. Model Path
+Results are saved to `eval_results/` and a comparison table is written to `eval_results/summary.md`.
 
-All commands below use this local model path:
+### Options
 
 ```bash
-MODEL=/home/zbibm/Reasoning-Vectors/output/qwen1.5bMathSft
+# Custom GPU memory utilization (default 0.4)
+GPU_MEMORY_UTILIZATION=0.6 bash run_math_evals.sh
+
+# Log per-sample outputs
+LOG_SAMPLES=1 bash run_math_evals.sh
+
+# Specific GPUs only
+GPU_IDS=0,1 bash run_math_evals.sh
 ```
 
-The model is instruction-tuned and has a chat template, so use `--apply_chat_template` for generative math tasks.
-
-## 3. Quick Smoke Test
-
-Before a full run, test a few examples:
+## Running a Single Task
 
 ```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks gsm8k_cot \
-  --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --limit 10 \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/smoke_gsm8k_cot
-```
+cd lm-evaluation-harness
 
-## 4. Recommended Main Evaluations
-
-### GSM8K
-
-Direct GSM8K:
-
-```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
+python -m lm_eval run \
+  --model vllm \
+  --model_args "pretrained=/home/zbibm/Reasoning-Vectors/models/qwen2.5-3b,dtype=auto,gpu_memory_utilization=0.5" \
   --tasks gsm8k \
   --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/gsm8k \
-  --log_samples
+  --batch_size 16 \
+  --output_path /home/zbibm/Reasoning-Vectors/eval_results/quick
 ```
 
-Chain-of-thought GSM8K:
+## Smoke Test (10 samples)
+
+Quick sanity check before a full run:
 
 ```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
+cd lm-evaluation-harness
+
+CUDA_VISIBLE_DEVICES=0 python -m lm_eval run \
+  --model vllm \
+  --model_args "pretrained=/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-3b-math,dtype=auto,gpu_memory_utilization=0.5" \
   --tasks gsm8k_cot \
   --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/gsm8k_cot \
-  --log_samples
+  --batch_size 16 \
+  --limit 10 \
+  --output_path /home/zbibm/Reasoning-Vectors/eval_results/smoke
 ```
 
-### Math Benchmarks
+## Reading Results
 
-Minerva MATH group:
+After `run_math_evals.sh` completes:
 
 ```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks minerva_math \
-  --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/minerva_math \
-  --log_samples
+cat eval_results/summary.md
 ```
 
-AGIEval MATH:
+Per-task result JSONs are at `eval_results/<model_name>/<task>/results_*.json`.
 
-```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks agieval_math \
-  --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/agieval_math \
-  --log_samples
-```
+## Notes
 
-AGIEval SAT Math:
-
-```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks agieval_sat_math \
-  --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/agieval_sat_math \
-  --log_samples
-```
-
-MathQA:
-
-```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks mathqa \
-  --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/mathqa \
-  --log_samples
-```
-
-## 5. Suggested Bundle
-
-If you want one run covering the main math set:
-
-```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks gsm8k gsm8k_cot minerva_math agieval_math agieval_sat_math mathqa \
-  --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/math_suite \
-  --log_samples
-```
-
-## 6. Notes On These Tasks
-
-- `gsm8k` and `gsm8k_cot` are generative math word-problem tasks.
-- `minerva_math` is a grouped benchmark over several MATH categories.
-- `agieval_math` and `agieval_sat_math` are generative math tasks with task-specific answer processing.
-- `mathqa` is multiple-choice. It is useful, but it is not the same style as your SFT training data.
-
-## 7. Multi-GPU Option
-
-Your machine has 4x A100 80GB GPUs. For this 1.5B model, a single GPU is usually enough.
-
-If you want data-parallel evaluation across multiple GPUs, use `accelerate`:
-
-```bash
-accelerate launch -m lm_eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks gsm8k_cot minerva_math \
-  --apply_chat_template \
-  --batch_size auto \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/multi_gpu_eval \
-  --log_samples
-```
-
-For a 1.5B model, start with single-process evaluation first unless you specifically want higher throughput.
-
-## 8. Check Available Tasks
-
-To inspect the task names in this checkout:
-
-```bash
-lm-eval ls tasks | rg 'gsm8k|minerva|mathqa|agieval'
-```
-
-## 9. Where Results Go
-
-Each run writes results under the `--output_path` directory you choose.
-
-Those folders will typically contain aggregate metrics and, if you use `--log_samples`, per-sample outputs for later inspection.
-
-## 10. Recommended First Run
-
-Start with this:
-
-```bash
-lm-eval run \
-  --model hf \
-  --model_args pretrained=$MODEL,dtype=bfloat16 \
-  --tasks gsm8k_cot minerva_math \
-  --apply_chat_template \
-  --batch_size auto \
-  --device cuda \
-  --output_path /home/zbibm/Reasoning-Vectors/eval_results/first_math_eval \
-  --log_samples
-```
-
-That gives you one standard grade-school benchmark and one stronger math benchmark group.
+- All generative tasks use `--apply_chat_template` — the models have Qwen chat templates
+- `minerva_math500` and `hendrycks_math500` use `math_verify` (sympy equivalence) as primary metric, not string exact match
+- `agieval_sat_math` uses logprob-based multiple choice — no generation needed
+- `agieval_math` has `max_gen_toks=512` (increased from default 32 to allow full reasoning chains)
+- `gsm8k_cot` strict-match regex accepts `The answer is X` with optional trailing period
