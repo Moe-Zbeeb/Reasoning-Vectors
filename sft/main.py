@@ -49,7 +49,8 @@ config = SFTConfig(
     num_train_epochs=1,
     per_device_train_batch_size=4,
     gradient_accumulation_steps=8,
-    learning_rate=1e-5,
+    learning_rate=5e-6,
+    weight_decay=0.01,
     lr_scheduler_type="cosine",
     warmup_steps=20,
     logging_steps=2,
@@ -84,7 +85,8 @@ print("Epochs: 1")
 print("Batch size: 4")
 print("Gradient accumulation: 8")
 print("Effective batch size: 128 (4 GPUs x 4 x 8)")
-print("Learning rate: 1e-5")
+print("Learning rate: 5e-6")
+print("Weight decay: 0.01")
 print("LR scheduler: cosine")
 print("Warmup steps: 20")
 print("Max length: 2048")
@@ -100,7 +102,8 @@ summary = {
     "per_device_train_batch_size": 4,
     "gradient_accumulation_steps": 8,
     "effective_batch_size": 128,
-    "learning_rate": 1e-5,
+    "learning_rate": 5e-6,
+    "weight_decay": 0.01,
     "lr_scheduler": "cosine",
     "warmup_steps": 20,
     "max_length": 2048,
@@ -114,7 +117,7 @@ print("Starting training...\n")
 train_result = trainer.train()
 
 print("\nSaving model...")
-trainer.save_model(str(OUTPUT_DIR / "final-model"))
+trainer.save_model("/home/zbibm/Reasoning-Vectors/models/output/sft/qwen1.5Bmath")
 trainer.state.save_to_json(str(LOGS_DIR / "trainer_state.json"))
 
 final_summary = {
@@ -128,6 +131,6 @@ print("\n" + "=" * 60)
 print("TRAINING COMPLETE!")
 print("=" * 60)
 print(f"Final loss: {train_result.training_loss:.4f}")
-print(f"Model saved to: {OUTPUT_DIR / 'final-model'}")
+print(f"Model saved to: models/output/sft/qwen1.5Bmath")
 print(f"Trainer state saved to: {LOGS_DIR / 'trainer_state.json'}")
 print("=" * 60)
