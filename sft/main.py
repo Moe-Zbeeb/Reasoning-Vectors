@@ -8,7 +8,7 @@ from transformers import AutoTokenizer, TrainerCallback
 from trl import SFTConfig, SFTTrainer
 
 DATASET_PATH = "/home/zbibm/Reasoning-Vectors/datasets/mathinstruct_cot_25k.jsonl"
-MODEL_PATH = "/home/zbibm/Reasoning-Vectors/models/qwen1.5B"
+MODEL_PATH = "/home/zbibm/Reasoning-Vectors/models/qwen2.5-3b"
 OUTPUT_DIR = Path("./output")
 LOGS_DIR = Path("./logs")
 
@@ -117,7 +117,7 @@ print("Starting training...\n")
 train_result = trainer.train()
 
 print("\nSaving model...")
-trainer.save_model("/home/zbibm/Reasoning-Vectors/models/output/sft/qwen1.5Bmath")
+trainer.save_model("/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-3b-math")
 trainer.state.save_to_json(str(LOGS_DIR / "trainer_state.json"))
 
 final_summary = {
@@ -131,6 +131,6 @@ print("\n" + "=" * 60)
 print("TRAINING COMPLETE!")
 print("=" * 60)
 print(f"Final loss: {train_result.training_loss:.4f}")
-print(f"Model saved to: models/output/sft/qwen1.5Bmath")
+print(f"Model saved to: models/output/sft/qwen2.5-3b-math")
 print(f"Trainer state saved to: {LOGS_DIR / 'trainer_state.json'}")
 print("=" * 60)

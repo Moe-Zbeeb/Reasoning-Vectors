@@ -15,8 +15,8 @@ MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
 PYTHON_BIN="/home/zbibm/miniconda3/envs/${ENV_NAME}/bin/python"
 PIP_BIN="/home/zbibm/miniconda3/envs/${ENV_NAME}/bin/pip"
 
-BASE_MODEL="$ROOT_DIR/models/qwen1.5B"
-SFT_MODEL="$ROOT_DIR/models/output/sft/qwen1.5Bmath"
+BASE_MODEL="$ROOT_DIR/models/qwen2.5-3b"
+SFT_MODEL="$ROOT_DIR/models/output/sft/qwen2.5-3b-math"
 
 TASKS=(
   gsm8k
@@ -253,7 +253,7 @@ for task in tasks:
     })
 
 lines = [
-    "| Task | Metric | Base qwen1.5B | SFT qwen1.5Bmath | Delta | Base status | SFT status |",
+    "| Task | Metric | Base qwen2.5-3b | SFT qwen2.5-3b-math | Delta | Base status | SFT status |",
     "|---|---|---:|---:|---:|---|---|",
 ]
 for row in rows:
