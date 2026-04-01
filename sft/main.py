@@ -46,7 +46,7 @@ summary_log_path = LOGS_DIR / "run_summary.json"
 
 config = SFTConfig(
     output_dir=str(OUTPUT_DIR),
-    num_train_epochs=1,
+    num_train_epochs=2,
     per_device_train_batch_size=4,
     gradient_accumulation_steps=8,
     learning_rate=5e-6,
@@ -81,7 +81,7 @@ print("\n" + "=" * 60)
 print(f"Dataset: {DATASET_PATH}")
 print(f"Model: {MODEL_PATH}")
 print(f"Examples: {len(dataset)}")
-print("Epochs: 1")
+print("Epochs: 2")
 print("Batch size: 4")
 print("Gradient accumulation: 8")
 print("Effective batch size: 128 (4 GPUs x 4 x 8)")
@@ -98,7 +98,7 @@ summary = {
     "dataset_path": DATASET_PATH,
     "model_path": MODEL_PATH,
     "num_examples": len(dataset),
-    "num_train_epochs": 1,
+    "num_train_epochs": 2,
     "per_device_train_batch_size": 4,
     "gradient_accumulation_steps": 8,
     "effective_batch_size": 128,
