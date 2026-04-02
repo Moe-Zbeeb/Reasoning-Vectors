@@ -26,6 +26,7 @@ TASKS=(
   hendrycks_math500
   agieval_math
   agieval_sat_math
+  aime24
 )
 
 require_path() {
@@ -181,6 +182,8 @@ def task_metric_priority(task: str):
         return ["acc", "acc_norm"]
     if task in {"minerva_math500", "hendrycks_math500"}:
         return ["math_verify", "exact_match,flexible-extract", "exact_match"]
+    if task in {"aime24"}:
+        return ["exact_match"]
     return [
         "exact_match,flexible-extract",
         "exact_match,strict-match",
