@@ -22,7 +22,7 @@ SFT_MODEL = "/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-3b-math"
 BASE_MODEL = "/home/zbibm/Reasoning-Vectors/models/qwen2.5-3b"
 MODEL_PATH = SFT_MODEL if Path(SFT_MODEL).exists() else BASE_MODEL
 
-OUTPUT_DIR = Path("./output_easy")
+OUTPUT_DIR = Path("./output/easy-grpo/qwen2.5-3b-math-grpo-easy")
 LOGS_DIR = Path("./logs_easy")
 
 REASONING_START = "<start_working_out>"
@@ -223,9 +223,7 @@ def main():
         bf16=True,
         gradient_checkpointing=True,
         logging_steps=1,
-        save_strategy="steps",
-        save_steps=100,
-        save_total_limit=2,
+        save_strategy="no",
         report_to="none",
         logging_dir=str(LOGS_DIR),
         seed=42,
@@ -251,7 +249,7 @@ def main():
     print(f"Output dir:           {OUTPUT_DIR}")
     print("=" * 60 + "\n")
 
-    save_path = "/home/zbibm/Reasoning-Vectors/models/output/grpo/qwen2.5-3b-math-grpo-easy"
+    save_path = "/home/zbibm/Reasoning-Vectors/output/easy-grpo/qwen2.5-3b-math-grpo-easy"
 
     trainer = GRPOTrainer(
         model=model,
@@ -287,7 +285,7 @@ def main():
         "learning_rate": training_args.learning_rate,
         "final_loss": train_result.training_loss,
         "global_step": trainer.state.global_step,
-        "model_saved_to": save_path,
+        "model_saved_to": str(save_path),
     }
     (LOGS_DIR / "run_summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
