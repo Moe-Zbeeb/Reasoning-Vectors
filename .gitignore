@@ -2,6 +2,8 @@ models/
 .cache/
 __pycache__/
 logs/
+logs_*/
 output/
+output_sft/
 eval_results/
 math_eval.log

@@ -1,8 +1,0 @@
-{
-  "model_path": "/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-3b-math",
-  "dataset": "/home/zbibm/Reasoning-Vectors/datasets/math_mixed_grpo.jsonl",
-  "num_samples": 12194,
-  "final_loss": 0.02622463159431799,
-  "global_step": 1524,
-  "model_saved_to": "output/grpo/mixed"
-}
