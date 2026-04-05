@@ -1,4 +1,4 @@
-#  accelerate launch --num_processes 4 --mixed_precision bf16 sft/main.py                                                                                    
+#  accelerate launch --num_processes 4 --mixed_precision bf16 sft/main.py
 
 import json
 from pathlib import Path
@@ -7,10 +7,11 @@ from datasets import load_dataset
 from transformers import AutoTokenizer, TrainerCallback
 from trl import SFTConfig, SFTTrainer
 
-DATASET_PATH = "/home/zbibm/Reasoning-Vectors/datasets/math_sft_47k.jsonl"
-MODEL_PATH = "/home/zbibm/Reasoning-Vectors/models/qwen2.5-3b"
-OUTPUT_DIR = Path("./output")
-LOGS_DIR = Path("./logs")
+DATASET_PATH = "/home/zbibm/Reasoning-Vectors/datasets/math_sft.jsonl"
+MODEL_PATH   = "/home/zbibm/Reasoning-Vectors/models/qwen2.5-3b"
+SAVE_PATH    = "/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-3b-math"
+OUTPUT_DIR   = Path("./output_sft")
+LOGS_DIR     = Path("./logs_sft")
 
 
 class JsonlLoggerCallback(TrainerCallback):
@@ -27,12 +28,8 @@ class JsonlLoggerCallback(TrainerCallback):
 
 
 print("Loading dataset...")
-dataset = load_dataset(
-    "json",
-    data_files=DATASET_PATH,
-    split="train",
-)
-print(f"Loaded {len(dataset)} examples")
+dataset = load_dataset("json", data_files=DATASET_PATH, split="train")
+print(f"Loaded {len(dataset):,} examples")
 
 print("Loading tokenizer...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
@@ -46,9 +43,9 @@ summary_log_path = LOGS_DIR / "run_summary.json"
 
 config = SFTConfig(
     output_dir=str(OUTPUT_DIR),
-    num_train_epochs=2,
+    num_train_epochs=3,
     per_device_train_batch_size=4,
-    gradient_accumulation_steps=8,
+    gradient_accumulation_steps=8,       # effective batch = 4 GPUs × 4 × 8 = 128
     learning_rate=5e-6,
     weight_decay=0.01,
     lr_scheduler_type="cosine",
@@ -78,38 +75,32 @@ trainer = SFTTrainer(
 trainer.add_callback(JsonlLoggerCallback(metrics_log_path))
 
 print("\n" + "=" * 60)
-print(f"Dataset: {DATASET_PATH}")
-print(f"Model: {MODEL_PATH}")
-print(f"Examples: {len(dataset)}")
-print("Epochs: 2")
-print("Batch size: 4")
-print("Gradient accumulation: 8")
-print("Effective batch size: 128 (4 GPUs x 4 x 8)")
-print("Learning rate: 5e-6")
-print("Weight decay: 0.01")
-print("LR scheduler: cosine")
-print("Warmup steps: 20")
-print("Max length: 2048")
-print("Completion-only loss: True")
-print(f"Metrics log: {metrics_log_path}")
+print("SFT TRAINING CONFIG")
+print("=" * 60)
+print(f"Model:              {MODEL_PATH}")
+print(f"Dataset:            {DATASET_PATH}  ({len(dataset):,} examples)")
+print(f"Epochs:             3")
+print(f"Per-device batch:   4")
+print(f"Grad accumulation:  8")
+print(f"Effective batch:    128  (4 GPUs × 4 × 8)")
+print(f"Learning rate:      5e-6")
+print(f"Max length:         2048")
+print(f"Completion-only:    True")
+print(f"Save path:          {SAVE_PATH}")
 print("=" * 60 + "\n")
 
 summary = {
-    "dataset_path": DATASET_PATH,
     "model_path": MODEL_PATH,
+    "dataset_path": DATASET_PATH,
     "num_examples": len(dataset),
-    "num_train_epochs": 2,
+    "num_train_epochs": 3,
     "per_device_train_batch_size": 4,
     "gradient_accumulation_steps": 8,
     "effective_batch_size": 128,
     "learning_rate": 5e-6,
     "weight_decay": 0.01,
-    "lr_scheduler": "cosine",
-    "warmup_steps": 20,
     "max_length": 2048,
     "completion_only_loss": True,
-    "bf16": True,
-    "metrics_log": str(metrics_log_path),
 }
 summary_log_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
@@ -117,20 +108,20 @@ print("Starting training...\n")
 train_result = trainer.train()
 
 print("\nSaving model...")
-trainer.save_model("/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-3b-math")
+trainer.save_model(SAVE_PATH)
 trainer.state.save_to_json(str(LOGS_DIR / "trainer_state.json"))
 
-final_summary = {
-    **summary,
+summary.update({
     "final_loss": train_result.training_loss,
     "global_step": trainer.state.global_step,
-}
-summary_log_path.write_text(json.dumps(final_summary, indent=2), encoding="utf-8")
+    "model_saved_to": SAVE_PATH,
+})
+summary_log_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
 print("\n" + "=" * 60)
-print("TRAINING COMPLETE!")
+print("SFT TRAINING COMPLETE")
 print("=" * 60)
-print(f"Final loss: {train_result.training_loss:.4f}")
-print(f"Model saved to: models/output/sft/qwen2.5-3b-math")
-print(f"Trainer state saved to: {LOGS_DIR / 'trainer_state.json'}")
+print(f"Final loss:  {train_result.training_loss:.4f}")
+print(f"Steps:       {trainer.state.global_step}")
+print(f"Model:       {SAVE_PATH}")
 print("=" * 60)

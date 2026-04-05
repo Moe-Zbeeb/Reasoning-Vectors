@@ -1,0 +1,382 @@
+The following values were not passed to `accelerate launch` and had defaults used instead:
+		More than one GPU was found, enabling multi-GPU training.
+		If this was unintended please pass in `--num_processes=1`.
+	`--num_machines` was set to a value of `1`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+[W405 03:02:24.681052265 socket.cpp:767] [c10d] The client socket cannot be initialized to connect to [localhost]:29500 (errno: 97 - Address family not supported by protocol).
+Loading dataset...
+Loading dataset...
+Loading dataset...
+Loading dataset...
+Loaded 24,966 examples
+Loading tokenizer...
+Loaded 24,966 examples
+Loading tokenizer...
+Loaded 24,966 examples
+Loading tokenizer...
+Loaded 24,966 examples
+Loading tokenizer...
+[W405 03:02:30.050930601 socket.cpp:767] [c10d] The client socket cannot be initialized to connect to [localhost]:29500 (errno: 97 - Address family not supported by protocol).
+[W405 03:02:30.186117028 socket.cpp:767] [c10d] The client socket cannot be initialized to connect to [localhost]:29500 (errno: 97 - Address family not supported by protocol).
+[W405 03:02:30.191408476 socket.cpp:767] [c10d] The client socket cannot be initialized to connect to [localhost]:29500 (errno: 97 - Address family not supported by protocol).
+Initializing trainer...
+[W405 03:02:30.430950802 socket.cpp:767] [c10d] The client socket cannot be initialized to connect to [localhost]:29500 (errno: 97 - Address family not supported by protocol).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Initializing trainer...
+Initializing trainer...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Initializing trainer...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:03<00:11,  3.81s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:03<00:10,  3.67s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:03<00:11,  3.80s/it]Loading checkpoint shards:  25%|██▌       | 1/4 [00:03<00:11,  3.88s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:07<00:07,  3.77s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:07<00:07,  3.70s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:07<00:07,  3.74s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:07<00:07,  3.72s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:10<00:03,  3.64s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:11<00:03,  3.68s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:11<00:03,  3.69s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:11<00:03,  3.74s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.56s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.60s/it]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.59s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.64s/it]
+Truncating train dataset:   0%|          | 0/24966 [00:00<?, ? examples/s]Truncating train dataset: 100%|██████████| 24966/24966 [00:00<00:00, 198437.35 examples/s]Truncating train dataset: 100%|██████████| 24966/24966 [00:00<00:00, 194896.91 examples/s]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.60s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.65s/it]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.60s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.66s/it]
+[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+
+============================================================
+SFT TRAINING CONFIG
+============================================================
+Model:              /home/zbibm/Reasoning-Vectors/models/qwen2.5-7b
+Dataset:            /home/zbibm/Reasoning-Vectors/datasets/math_sft.jsonl  (24,966 examples)
+Epochs:             2
+Per-device batch:   1
+Grad accumulation:  32
+Effective batch:    128  (4 GPUs × 1 × 32)
+Learning rate:      5e-6
+Max length:         1536
+Completion-only:    True
+Save path:          /home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-7b-math
+============================================================
+
+Starting training...
+
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+
+============================================================
+SFT TRAINING CONFIG
+============================================================
+Model:              /home/zbibm/Reasoning-Vectors/models/qwen2.5-7b
+Dataset:            /home/zbibm/Reasoning-Vectors/datasets/math_sft.jsonl  (24,966 examples)
+Epochs:             2
+Per-device batch:   1
+Grad accumulation:  32
+Effective batch:    128  (4 GPUs × 1 × 32)
+Learning rate:      5e-6
+Max length:         1536
+Completion-only:    True
+Save path:          /home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-7b-math
+============================================================
+
+Starting training...
+
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+
+============================================================
+SFT TRAINING CONFIG
+============================================================
+Model:              /home/zbibm/Reasoning-Vectors/models/qwen2.5-7b
+Dataset:            /home/zbibm/Reasoning-Vectors/datasets/math_sft.jsonl  (24,966 examples)
+Epochs:             2
+Per-device batch:   1
+Grad accumulation:  32
+Effective batch:    128  (4 GPUs × 1 × 32)
+Learning rate:      5e-6
+Max length:         1536
+Completion-only:    True
+Save path:          /home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-7b-math
+============================================================
+
+Starting training...
+
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+
+============================================================
+SFT TRAINING CONFIG
+============================================================
+Model:              /home/zbibm/Reasoning-Vectors/models/qwen2.5-7b
+Dataset:            /home/zbibm/Reasoning-Vectors/datasets/math_sft.jsonl  (24,966 examples)
+Epochs:             2
+Per-device batch:   1
+Grad accumulation:  32
+Effective batch:    128  (4 GPUs × 1 × 32)
+Learning rate:      5e-6
+Max length:         1536
+Completion-only:    True
+Save path:          /home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-7b-math
+============================================================
+
+Starting training...
+
+The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+  0%|          | 0/392 [00:00<?, ?it/s][rank2]: Traceback (most recent call last):
+[rank2]:   File "/home/zbibm/Reasoning-Vectors/sft/main.py", line 108, in <module>
+[rank2]:     train_result = trainer.train()
+[rank2]:                    ^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+[rank2]:     return inner_training_loop(
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2674, in _inner_training_loop
+[rank2]:     tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+[rank2]:                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/trl/trainer/sft_trainer.py", line 1338, in training_step
+[rank2]:     return super().training_step(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 4071, in training_step
+[rank2]:     self.accelerator.backward(loss, **kwargs)
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/accelerate/accelerator.py", line 2838, in backward
+[rank2]:     loss.backward(**kwargs)
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_tensor.py", line 625, in backward
+[rank2]:     torch.autograd.backward(
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/__init__.py", line 354, in backward
+[rank2]:     _engine_run_backward(
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+[rank2]:     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1154, in unpack_hook
+[rank2]:     _run_fn_with_dynamo_disabled(frame.recompute_fn, *args)
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_compile.py", line 53, in inner
+[rank2]:     return disable_fn(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 1044, in _fn
+[rank2]:     return fn(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1124, in _run_fn_with_dynamo_disabled
+[rank2]:     return fn(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1555, in recompute_fn
+[rank2]:     fn(*args, **kwargs)
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank2]:     return self._call_impl(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank2]:     return forward_call(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+[rank2]:     return func(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 249, in forward
+[rank2]:     hidden_states = self.mlp(hidden_states)
+[rank2]:                     ^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank2]:     return self._call_impl(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank2]:     return forward_call(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 46, in forward
+[rank2]:     down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+[rank2]:                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank2]:     return self._call_impl(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank2]:     return forward_call(*args, **kwargs)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 134, in forward
+[rank2]:     return F.linear(input, self.weight, self.bias)
+[rank2]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]: torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 130.00 MiB. GPU 2 has a total capacity of 79.15 GiB of which 28.19 MiB is free. Including non-PyTorch memory, this process has 79.10 GiB memory in use. Of the allocated memory 78.33 GiB is allocated by PyTorch, and 96.01 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[rank3]: Traceback (most recent call last):
+[rank3]:   File "/home/zbibm/Reasoning-Vectors/sft/main.py", line 108, in <module>
+[rank3]:     train_result = trainer.train()
+[rank3]:                    ^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+[rank3]:     return inner_training_loop(
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2674, in _inner_training_loop
+[rank3]:     tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+[rank3]:                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/trl/trainer/sft_trainer.py", line 1338, in training_step
+[rank3]:     return super().training_step(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 4071, in training_step
+[rank3]:     self.accelerator.backward(loss, **kwargs)
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/accelerate/accelerator.py", line 2838, in backward
+[rank3]:     loss.backward(**kwargs)
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_tensor.py", line 625, in backward
+[rank3]:     torch.autograd.backward(
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/__init__.py", line 354, in backward
+[rank3]:     _engine_run_backward(
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+[rank3]:     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1154, in unpack_hook
+[rank3]:     _run_fn_with_dynamo_disabled(frame.recompute_fn, *args)
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_compile.py", line 53, in inner
+[rank3]:     return disable_fn(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 1044, in _fn
+[rank3]:     return fn(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1124, in _run_fn_with_dynamo_disabled
+[rank3]:     return fn(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1555, in recompute_fn
+[rank3]:     fn(*args, **kwargs)
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank3]:     return self._call_impl(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank3]:     return forward_call(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+[rank3]:     return func(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 249, in forward
+[rank3]:     hidden_states = self.mlp(hidden_states)
+[rank3]:                     ^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank3]:     return self._call_impl(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank3]:     return forward_call(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 46, in forward
+[rank3]:     down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+[rank3]:                                                                 ^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank3]:     return self._call_impl(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank3]:     return forward_call(*args, **kwargs)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 134, in forward
+[rank3]:     return F.linear(input, self.weight, self.bias)
+[rank3]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]: torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 130.00 MiB. GPU 3 has a total capacity of 79.15 GiB of which 30.19 MiB is free. Including non-PyTorch memory, this process has 79.10 GiB memory in use. Of the allocated memory 78.17 GiB is allocated by PyTorch, and 258.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "/home/zbibm/Reasoning-Vectors/sft/main.py", line 108, in <module>
+[rank1]:     train_result = trainer.train()
+[rank1]:                    ^^^^^^^^^^^^^^^
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+[rank1]:     return inner_training_loop(
+[rank1]:            ^^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2674, in _inner_training_loop
+[rank1]:     tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+[rank1]:                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/trl/trainer/sft_trainer.py", line 1338, in training_step
+[rank1]:     return super().training_step(*args, **kwargs)
+[rank1]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 4071, in training_step
+[rank1]:     self.accelerator.backward(loss, **kwargs)
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/accelerate/accelerator.py", line 2838, in backward
+[rank1]:     loss.backward(**kwargs)
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_tensor.py", line 625, in backward
+[rank1]:     torch.autograd.backward(
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/__init__.py", line 354, in backward
+[rank1]:     _engine_run_backward(
+[rank1]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+[rank1]:     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank1]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank1]: torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 260.00 MiB. GPU 1 has a total capacity of 79.15 GiB of which 170.19 MiB is free. Including non-PyTorch memory, this process has 78.96 GiB memory in use. Of the allocated memory 77.87 GiB is allocated by PyTorch, and 422.64 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/zbibm/Reasoning-Vectors/sft/main.py", line 108, in <module>
+[rank0]:     train_result = trainer.train()
+[rank0]:                    ^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2325, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 2674, in _inner_training_loop
+[rank0]:     tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+[rank0]:                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/trl/trainer/sft_trainer.py", line 1338, in training_step
+[rank0]:     return super().training_step(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/trainer.py", line 4071, in training_step
+[rank0]:     self.accelerator.backward(loss, **kwargs)
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/accelerate/accelerator.py", line 2838, in backward
+[rank0]:     loss.backward(**kwargs)
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_tensor.py", line 625, in backward
+[rank0]:     torch.autograd.backward(
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/__init__.py", line 354, in backward
+[rank0]:     _engine_run_backward(
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/autograd/graph.py", line 841, in _engine_run_backward
+[rank0]:     return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1154, in unpack_hook
+[rank0]:     _run_fn_with_dynamo_disabled(frame.recompute_fn, *args)
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_compile.py", line 53, in inner
+[rank0]:     return disable_fn(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/_dynamo/eval_frame.py", line 1044, in _fn
+[rank0]:     return fn(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1124, in _run_fn_with_dynamo_disabled
+[rank0]:     return fn(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/utils/checkpoint.py", line 1555, in recompute_fn
+[rank0]:     fn(*args, **kwargs)
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+[rank0]:     return func(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 249, in forward
+[rank0]:     hidden_states = self.mlp(hidden_states)
+[rank0]:                     ^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 46, in forward
+[rank0]:     down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+[rank0]:                                                                 ^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 134, in forward
+[rank0]:     return F.linear(input, self.weight, self.bias)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]: torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 130.00 MiB. GPU 0 has a total capacity of 79.15 GiB of which 70.19 MiB is free. Including non-PyTorch memory, this process has 79.06 GiB memory in use. Of the allocated memory 78.14 GiB is allocated by PyTorch, and 252.22 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[rank0]:[W405 03:03:08.062920550 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+  0%|          | 0/392 [00:03<?, ?it/s]
+[rank1]:[W405 03:03:09.911041874 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+[rank3]:[W405 03:03:09.033423529 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+[rank2]:[W405 03:03:09.039537175 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+[rank0]:[W405 03:03:09.228891090 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+W0405 03:03:09.957000 1897093 site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 1897245 closing signal SIGTERM
+W0405 03:03:09.958000 1897093 site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 1897247 closing signal SIGTERM
+W0405 03:03:09.958000 1897093 site-packages/torch/distributed/elastic/multiprocessing/api.py:908] Sending process 1897248 closing signal SIGTERM
+E0405 03:03:10.725000 1897093 site-packages/torch/distributed/elastic/multiprocessing/api.py:882] failed (exitcode: 1) local_rank: 1 (pid: 1897246) of binary: /home/zbibm/miniconda3/envs/reasoning/bin/python3.11
+Traceback (most recent call last):
+  File "/home/zbibm/miniconda3/envs/reasoning/bin/accelerate", line 6, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/accelerate/commands/accelerate_cli.py", line 50, in main
+    args.func(args)
+  File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/accelerate/commands/launch.py", line 1396, in launch_command
+    multi_gpu_launcher(args)
+  File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/accelerate/commands/launch.py", line 1023, in multi_gpu_launcher
+    distrib_run.run(args)
+  File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/distributed/run.py", line 927, in run
+    elastic_launch(
+  File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 156, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zbibm/miniconda3/envs/reasoning/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 293, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+sft/main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-05_03:03:09
+  host      : KW61113
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 1897246)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[W405 03:03:11.920353039 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
