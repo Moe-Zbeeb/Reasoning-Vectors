@@ -24,11 +24,11 @@ TASKS=(
   gsm8k_platinum_cot_zeroshot
   gsm_plus
   minerva_math500
-  hendrycks_math500
-  hendrycks_math_algebra
-  hendrycks_math_intermediate_algebra
-  hendrycks_math_num_theory
-  mmlu_pro_math
+  minerva_math_algebra
+  minerva_math_intermediate_algebra
+  minerva_math_num_theory
+  minerva_math_geometry
+  minerva_math_counting_and_prob
   agieval_math
   agieval_sat_math
 )
@@ -73,6 +73,13 @@ launch_eval() {
   model_name="$(model_slug "$model_path")"
   out_dir="$RESULTS_ROOT/$model_name/$task"
   log_file="$out_dir/run.log"
+
+  # Skip if already succeeded
+  if [[ "$(cat "$out_dir/.status" 2>/dev/null)" == "SUCCESS" ]]; then
+    echo "SKIP (already SUCCESS): $model_name / $task"
+    return
+  fi
+
   mkdir -p "$out_dir"
 
   echo
@@ -133,7 +140,7 @@ prune_finished_jobs() {
       else
         status="failed"
       fi
-      echo "Completed: model=${PID_TO_MODEL[$pid]} task=${PID_TO_TASK[$pid]} gpu=${PID_TO_GPU[$pid]} status=${status}"
+      echo "Completed: model=${PID_TO_MODEL[$pid]} task=${PID_TO_TASK[$pid]} gpu=${PID_TO_GPU[$pid]} status=${status}" >&2
       unset 'PID_TO_GPU[$pid]' 'PID_TO_MODEL[$pid]' 'PID_TO_TASK[$pid]'
     fi
   done
@@ -182,12 +189,13 @@ def latest_result_json(task_dir: Path):
 def task_metric_priority(task: str):
     if task in {"agieval_sat_math"}:
         return ["acc_norm", "acc"]
-    if task in {"agieval_math", "mmlu_pro_math"}:
+    if task in {"agieval_math"}:
         return ["acc", "acc_norm"]
     if task in {
-        "minerva_math500", "hendrycks_math500",
-        "hendrycks_math_algebra", "hendrycks_math_intermediate_algebra",
-        "hendrycks_math_num_theory",
+        "minerva_math500",
+        "minerva_math_algebra", "minerva_math_intermediate_algebra",
+        "minerva_math_num_theory", "minerva_math_geometry",
+        "minerva_math_counting_and_prob",
     }:
         return ["math_verify", "exact_match,flexible-extract", "exact_match"]
     if task in {"gsm8k_platinum_cot_zeroshot"}:
@@ -307,15 +315,43 @@ declare -A PID_TO_GPU=()
 declare -A PID_TO_MODEL=()
 declare -A PID_TO_TASK=()
 
-job_index=0
-for model in "$BASE_MODEL" "$SFT_MODEL"; do
-  for task in "${TASKS[@]}"; do
-    wait_for_slot
-    gpu="${GPU_LIST[$(( job_index % ${#GPU_LIST[@]} ))]}"
-    wait_for_gpu_release "$gpu"
-    launch_eval "$gpu" "$model" "$task"
-    job_index=$((job_index + 1))
+# Find a GPU that is both not actively assigned and below the memory threshold.
+# This ensures all 4 GPUs stay busy rather than waiting on a specific GPU to drain.
+find_free_gpu() {
+  local threshold_mib="${GPU_REUSE_MEMORY_THRESHOLD_MIB:-1024}"
+  while true; do
+    prune_finished_jobs >&2
+    for gpu in "${GPU_LIST[@]}"; do
+      local in_use=0
+      for pid in "${ACTIVE_PIDS[@]}"; do
+        if [[ "${PID_TO_GPU[$pid]:-}" == "$gpu" ]]; then
+          in_use=1; break
+        fi
+      done
+      (( in_use )) && continue
+      local used_mib
+      used_mib="$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits -i "$gpu" | tr -d '[:space:]')"
+      if [[ -n "$used_mib" ]] && (( used_mib <= threshold_mib )); then
+        echo "$gpu"; return
+      fi
+    done
+    sleep 3
   done
+}
+
+# Build a flat interleaved job list: (base,task0),(sft,task0),(base,task1),(sft,task1),...
+# so both models run in parallel and all 4 GPUs stay busy.
+declare -a JOB_MODELS=()
+declare -a JOB_TASKS=()
+for task in "${TASKS[@]}"; do
+  JOB_MODELS+=("$BASE_MODEL" "$SFT_MODEL")
+  JOB_TASKS+=("$task"        "$task")
+done
+
+for (( i=0; i<${#JOB_MODELS[@]}; i++ )); do
+  wait_for_slot
+  gpu=$(find_free_gpu)
+  launch_eval "$gpu" "${JOB_MODELS[$i]}" "${JOB_TASKS[$i]}"
 done
 
 wait_for_all

@@ -17,11 +17,11 @@ TASKS=(
   gsm8k_platinum_cot_zeroshot
   gsm_plus
   minerva_math500
-  hendrycks_math500
-  hendrycks_math_algebra
-  hendrycks_math_intermediate_algebra
-  hendrycks_math_num_theory
-  mmlu_pro_math
+  minerva_math_algebra
+  minerva_math_intermediate_algebra
+  minerva_math_num_theory
+  minerva_math_geometry
+  minerva_math_counting_and_prob
   agieval_math
   agieval_sat_math
 )

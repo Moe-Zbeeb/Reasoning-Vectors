@@ -22,19 +22,21 @@ Evaluates models on 12 math reasoning benchmarks using [lm-evaluation-harness](.
 
 ### MATH / competition math — free-form with `\boxed{}`
 
+Uses `minerva_math` variants throughout (not `hendrycks_math`) because the Minerva tasks use `math_verify` which correctly parses `\boxed{}` output. The old Hendrycks extractor expects raw `$answer$` format and always scores 0 for models trained with `\boxed{}` prompts.
+
 | Task | Description |
 |---|---|
-| `hendrycks_math500` | 500-problem sample from Hendrycks MATH (all levels, all topics) |
-| `minerva_math500` | Same 500 problems evaluated with Minerva-style prompting |
-| `hendrycks_math_algebra` | MATH algebra subset |
-| `hendrycks_math_intermediate_algebra` | MATH intermediate algebra subset |
-| `hendrycks_math_num_theory` | MATH number theory subset |
+| `minerva_math500` | 500-problem sample, all levels, all topics |
+| `minerva_math_algebra` | Algebra subset |
+| `minerva_math_intermediate_algebra` | Intermediate algebra subset |
+| `minerva_math_num_theory` | Number theory subset |
+| `minerva_math_geometry` | Geometry subset |
+| `minerva_math_counting_and_prob` | Counting & probability subset |
 
 ### Multi-choice / structured
 
 | Task | Description |
 |---|---|
-| `mmlu_pro_math` | MMLU-Pro math category — 10-option college-level questions requiring reasoning |
 | `agieval_math` | Gaokao math problems (Chinese college entrance, translated) |
 | `agieval_sat_math` | SAT math problems |
 

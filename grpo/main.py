@@ -15,8 +15,8 @@ from trl import GRPOConfig, GRPOTrainer
 # ---------------------------------------------------------------------------
 
 DATASET_PATH = "/home/zbibm/Reasoning-Vectors/datasets/math_grpo.jsonl"
-MODEL_PATH   = "/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-7b-math"
-SAVE_PATH    = "/home/zbibm/Reasoning-Vectors/models/output/grpo/qwen2.5-7b-math-grpo"
+MODEL_PATH   = "/home/zbibm/Reasoning-Vectors/models/output/sft/qwen2.5-3b-math"
+SAVE_PATH    = "/home/zbibm/Reasoning-Vectors/models/output/grpo/qwen2.5-3b-math-grpo"
 OUTPUT_DIR   = Path("./output_grpo")
 LOGS_DIR     = Path("./logs_grpo")
 
@@ -68,9 +68,6 @@ def format_example(example):
 # Reward functions
 # ---------------------------------------------------------------------------
 
-BOXED_RE = re.compile(r"\\boxed\{", re.DOTALL)
-
-
 def _extract_boxed(text: str):
     """Extract content of last \\boxed{} from model output."""
     idx = text.rfind(r"\boxed{")
@@ -88,19 +85,13 @@ def _extract_boxed(text: str):
     return None
 
 
-def reward_format(completions, **kwargs):
-    """2.0 if response contains \\boxed{}, 0 otherwise."""
-    return [
-        2.0 if BOXED_RE.search(c[0]["content"]) else 0.0
-        for c in completions
-    ]
-
-
 def reward_correctness(prompts, completions, answer, **kwargs):
     """
-    3.0  — math_verify confirms answer matches
-   -0.5  — wrong answer
-    0.0  — no \\boxed{} found / parse error
+    1.0  — math_verify confirms answer matches
+    0.0  — wrong answer, no \\boxed{}, or parse error
+
+    No negative penalty — discourages exploration at 3B scale.
+    No format reward — SFT already locked in \\boxed{} format.
     """
     scores = []
     for c, true_ans in zip(completions, answer):
@@ -112,9 +103,9 @@ def reward_correctness(prompts, completions, answer, **kwargs):
             pg = parse(guess)
             pt = parse(str(true_ans))
             if pg is not None and pt is not None:
-                scores.append(3.0 if verify(pt, pg) else -0.5)
+                scores.append(1.0 if verify(pt, pg) else 0.0)
             else:
-                scores.append(3.0 if guess.strip() == str(true_ans).strip() else -0.5)
+                scores.append(1.0 if guess.strip() == str(true_ans).strip() else 0.0)
         except Exception:
             scores.append(0.0)
     return scores
@@ -144,9 +135,9 @@ def main():
         output_dir=str(OUTPUT_DIR),
         learning_rate=5e-7,
         lr_scheduler_type="cosine",
-        warmup_steps=20,
-        per_device_train_batch_size=2,       # 7B is larger
-        gradient_accumulation_steps=8,       # effective = 4×2×8 = 64
+        warmup_steps=50,
+        per_device_train_batch_size=4,
+        gradient_accumulation_steps=2,       # effective = 4×4×2 = 32
         max_completion_length=1024,
         num_train_epochs=1,
         num_generations=8,
@@ -154,12 +145,13 @@ def main():
         vllm_mode="colocate",
         vllm_gpu_memory_utilization=0.25,
         vllm_max_model_length=4096,
-        generation_batch_size=16,            # per_device_batch(2) × num_generations(8)
+        generation_batch_size=32,            # per_device_batch(4) × num_generations(8)
         max_grad_norm=0.1,
         bf16=True,
         gradient_checkpointing=True,
         logging_steps=1,
-        save_strategy="no",
+        save_strategy="steps",
+        save_steps=100,
         report_to="none",
         logging_dir=str(LOGS_DIR),
         seed=42,
@@ -174,7 +166,7 @@ def main():
     print("=" * 60)
     print(f"Model:              {MODEL_PATH}")
     print(f"Dataset:            {DATASET_PATH}  ({len(dataset):,} examples)")
-    print(f"Rewards:            format(\\boxed{{}}) + correctness(math_verify)")
+    print(f"Rewards:            correctness only (math_verify, 1.0/0.0)")
     print(f"Per-device batch:   {training_args.per_device_train_batch_size}")
     print(f"Grad accumulation:  {training_args.gradient_accumulation_steps}")
     print(f"Effective batch:    {training_args.per_device_train_batch_size * 4 * training_args.gradient_accumulation_steps}")
@@ -184,7 +176,7 @@ def main():
 
     trainer = GRPOTrainer(
         model=model,
-        reward_funcs=[reward_format, reward_correctness],
+        reward_funcs=[reward_correctness],
         args=training_args,
         train_dataset=dataset,
         processing_class=tokenizer,

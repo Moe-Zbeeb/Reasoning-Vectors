@@ -11,8 +11,13 @@ SFT — math_sft.jsonl
     This fixes hendrycks_math500 which expects \\boxed{} output.
 
 GRPO — math_grpo.jsonl
-    MATH Level 3-5 (qwedsacf/competition_math)
-    GSM8K          (openai/gsm8k, main, train) — easy anchor for rollout signal
+    MATH L5        (qwedsacf/competition_math, level 5) — all ~3,628
+    MATH L4        (qwedsacf/competition_math, level 4) — all ~2,904
+    MATH L3        (qwedsacf/competition_math, level 3) — all topics
+                   non-algebra: ~2,070 (primary signal)
+                   algebra:       ~400 sampled (reward anchor)
+    GSM8K          dropped — model scores 66-70%, near-zero reward variance
+    NuminaMath     dropped — rollout check showed 1/13 (8%) solve rate, dead gradient
 
     Format: {"question", "answer", "source"}
     Answers kept as raw LaTeX strings — verified at reward time with math_verify.
@@ -173,29 +178,39 @@ print("\n--- Building GRPO dataset ---")
 
 grpo_rows = []
 
-# GSM8K — integer answers
-for ex in gsm_ds:
-    ans = extract_gsm_answer(ex["answer"])
-    if ans is None:
-        continue
-    grpo_rows.append({
-        "question": ex["question"].strip(),
-        "answer":   ans,
-        "source":   "gsm8k",
-    })
+# MATH L4 + L5 — all problems
+# MATH L3 — non-algebra in full, algebra sampled to ~400 as reward anchor
+L3_ALGEBRA_CAP = 400
+l3_algebra_rows = []
 
-# MATH Level 3-5 — raw LaTeX answers for math_verify
 for ex in math_ds:
-    if ex["level"] not in ("Level 3", "Level 4", "Level 5"):
+    level = ex.get("level", "")
+    topic = ex.get("type", "")
+    if level not in ("Level 3", "Level 4", "Level 5"):
         continue
     ans = extract_boxed(ex["solution"])
     if ans is None:
         continue
-    grpo_rows.append({
+    row = {
         "question": ex["problem"].strip(),
         "answer":   ans,
-        "source":   f"math_{ex['level'].replace(' ', '').lower()}",
-    })
+        "source":   f"math_{ex['level'].replace(' ', '').lower()}_{topic.lower().replace(' & ', '_').replace(' ', '_')}",
+    }
+    if level == "Level 3" and topic == "Algebra":
+        l3_algebra_rows.append(row)
+    else:
+        grpo_rows.append(row)
+
+# Sample L3 algebra down to anchor size
+rng.shuffle(l3_algebra_rows)
+l3_algebra_sampled = l3_algebra_rows[:L3_ALGEBRA_CAP]
+grpo_rows.extend(l3_algebra_sampled)
+
+from collections import Counter as _Counter
+lvl_counts = _Counter(r["source"].split("_")[1] for r in grpo_rows)
+print(f"  MATH L5: {lvl_counts.get('level5', 0):,}")
+print(f"  MATH L4: {lvl_counts.get('level4', 0):,}")
+print(f"  MATH L3 (non-algebra full + algebra anchor {L3_ALGEBRA_CAP}): {lvl_counts.get('level3', 0):,}")
 
 rng.shuffle(grpo_rows)
 save_jsonl(grpo_rows, GRPO_OUTPUT)
@@ -203,9 +218,9 @@ save_jsonl(grpo_rows, GRPO_OUTPUT)
 total = len(grpo_rows)
 src   = Counter(r["source"] for r in grpo_rows)
 print(f"\nGRPO total: {total:,} → {GRPO_OUTPUT}")
-print(f"\n  {'Source':<25} {'Count':>6}  {'%':>5}")
-print("  " + "-" * 40)
+print(f"\n  {'Source':<40} {'Count':>6}  {'%':>5}")
+print("  " + "-" * 52)
 for s, c in sorted(src.items(), key=lambda x: -x[1]):
-    print(f"  {s:<25} {c:>6}  {c/total*100:>4.1f}%")
+    print(f"  {s:<40} {c:>6}  {c/total*100:>4.1f}%")
 
 print("\nDone.")
