@@ -176,12 +176,39 @@ print(f"\nSFT total: {len(sft_rows):,} → {SFT_OUTPUT}")
 
 print("\n--- Building GRPO dataset ---")
 
-grpo_rows = []
+import re as _re
+from math_verify import parse as _mv_parse
 
-# MATH L4 + L5 — all problems
-# MATH L3 — non-algebra in full, algebra sampled to ~400 as reward anchor
-L3_ALGEBRA_CAP = 400
-l3_algebra_rows = []
+def _is_mc_answer(text: str) -> bool:
+    """Return True if the boxed answer is just a multiple-choice letter (A-E)."""
+    t = text.strip()
+    # bare letter: A, B, C, D, E
+    if _re.fullmatch(r"[A-E]", t):
+        return True
+    # \textbf{(A)} style or \text{(A)} style
+    if _re.fullmatch(r"\\text(?:bf)?\{[\(\[]?[A-E][\)\]]?\}", t):
+        return True
+    return False
+
+# ── Target mix ──────────────────────────────────────────────────────────────
+# ~22% MATH L5  (cap 2,200 of 3,628 available)
+# ~22% MATH L4  (cap 2,200 of 2,904 available)
+# ~7%  MATH L3 algebra    (all 653 available — too few to cap higher)
+# ~13% MATH L3 non-algebra (cap 1,300 of 2,070 available)
+# ~22% GSM-Plus           (cap 2,200 of 10,552 available)
+# ~7%  AMC/AIME           (cap 700 of ~3,500 filtered available)
+# Total target: ~10,000
+# ---------------------------------------------------------------------------
+
+L5_CAP            = 2200
+L4_CAP            = 2200
+L3_ALGEBRA_CAP    = None   # use all (only 653)
+L3_NONALGEBRA_CAP = 1300
+GSM_PLUS_CAP      = 2200
+AMC_AIME_CAP      = 700
+
+# ── MATH L3 / L4 / L5 ───────────────────────────────────────────────────────
+l5_rows, l4_rows, l3_alg_rows, l3_non_rows = [], [], [], []
 
 for ex in math_ds:
     level = ex.get("level", "")
@@ -194,26 +221,30 @@ for ex in math_ds:
     row = {
         "question": ex["problem"].strip(),
         "answer":   ans,
-        "source":   f"math_{ex['level'].replace(' ', '').lower()}_{topic.lower().replace(' & ', '_').replace(' ', '_')}",
+        "source":   f"math_{level.replace(' ', '').lower()}_{topic.lower().replace(' & ', '_').replace(' ', '_')}",
     }
-    if level == "Level 3" and topic == "Algebra":
-        l3_algebra_rows.append(row)
+    if level == "Level 5":
+        l5_rows.append(row)
+    elif level == "Level 4":
+        l4_rows.append(row)
+    elif topic == "Algebra":
+        l3_alg_rows.append(row)
     else:
-        grpo_rows.append(row)
+        l3_non_rows.append(row)
 
-# Sample L3 algebra down to anchor size
-rng.shuffle(l3_algebra_rows)
-l3_algebra_sampled = l3_algebra_rows[:L3_ALGEBRA_CAP]
-grpo_rows.extend(l3_algebra_sampled)
+rng.shuffle(l5_rows);      l5_rows      = l5_rows[:L5_CAP]
+rng.shuffle(l4_rows);      l4_rows      = l4_rows[:L4_CAP]
+rng.shuffle(l3_non_rows);  l3_non_rows  = l3_non_rows[:L3_NONALGEBRA_CAP]
+# L3 algebra: use all (only 653)
+rng.shuffle(l3_alg_rows)
 
-from collections import Counter as _Counter
-lvl_counts = _Counter(r["source"].split("_")[1] for r in grpo_rows)
-print(f"  MATH L5: {lvl_counts.get('level5', 0):,}")
-print(f"  MATH L4: {lvl_counts.get('level4', 0):,}")
-print(f"  MATH L3 (non-algebra full + algebra anchor {L3_ALGEBRA_CAP}): {lvl_counts.get('level3', 0):,}")
+grpo_rows = l5_rows + l4_rows + l3_alg_rows + l3_non_rows
+print(f"  MATH L5:              {len(l5_rows):,}")
+print(f"  MATH L4:              {len(l4_rows):,}")
+print(f"  MATH L3 algebra:      {len(l3_alg_rows):,}  (all available)")
+print(f"  MATH L3 non-algebra:  {len(l3_non_rows):,}")
 
-# GSM-Plus — 1K samples as reward-signal anchor (harder than GSM8K, ~40-50% solve rate)
-GSM_PLUS_CAP = 1000
+# ── GSM-Plus ─────────────────────────────────────────────────────────────────
 from datasets import load_dataset as _load_hf
 gsm_plus_ds = _load_hf("qintongli/GSM-Plus", split="test")
 gsm_plus_rows = []
@@ -227,8 +258,34 @@ for ex in gsm_plus_ds:
         "source":   "gsm_plus",
     })
 rng.shuffle(gsm_plus_rows)
-grpo_rows.extend(gsm_plus_rows[:GSM_PLUS_CAP])
-print(f"  GSM-Plus (sampled {GSM_PLUS_CAP}): {len(gsm_plus_rows[:GSM_PLUS_CAP]):,}")
+gsm_plus_rows = gsm_plus_rows[:GSM_PLUS_CAP]
+grpo_rows.extend(gsm_plus_rows)
+print(f"  GSM-Plus:             {len(gsm_plus_rows):,}")
+
+# ── NuminaMath AMC/AIME ───────────────────────────────────────────────────────
+# Filter to numeric/algebraic answers only — skip bare multiple-choice letters.
+numina_ds = _load_hf("AI-MO/NuminaMath-CoT", split="train")
+amc_rows = []
+for ex in numina_ds:
+    if ex["source"] != "amc_aime":
+        continue
+    ans = extract_boxed(ex["solution"])
+    if ans is None:
+        continue
+    if _is_mc_answer(ans):
+        continue
+    # Require math_verify can parse it (skip unparseable expressions)
+    if _mv_parse(ans) is None:
+        continue
+    amc_rows.append({
+        "question": ex["problem"].strip(),
+        "answer":   ans,
+        "source":   "numina_amc_aime",
+    })
+rng.shuffle(amc_rows)
+amc_rows = amc_rows[:AMC_AIME_CAP]
+grpo_rows.extend(amc_rows)
+print(f"  NuminaMath AMC/AIME:  {len(amc_rows):,}  (filtered non-MC only)")
 
 rng.shuffle(grpo_rows)
 save_jsonl(grpo_rows, GRPO_OUTPUT)
