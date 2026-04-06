@@ -7,6 +7,7 @@ Evaluates models on 12 math reasoning benchmarks using [lm-evaluation-harness](.
 | Script | Purpose |
 |---|---|
 | `run_math_evals.sh` | Full eval: runs all tasks on base + SFT model across 4 GPUs in parallel |
+| `eval_single_model.sh` | Eval a single model on all 12 tasks across all 4 GPUs. Usage: `bash evals/eval_single_model.sh <absolute_model_path>` |
 | `validate_evals.sh` | Smoke test: 3 samples per task on base model (GPU 0 only) to catch breakage before a full run |
 
 ## Tasks

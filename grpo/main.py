@@ -139,7 +139,7 @@ def main():
         per_device_train_batch_size=4,
         gradient_accumulation_steps=2,       # effective = 4×4×2 = 32
         max_completion_length=1024,
-        num_train_epochs=1,
+        num_train_epochs=3,
         num_generations=8,
         use_vllm=True,
         vllm_mode="colocate",

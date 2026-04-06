@@ -30,21 +30,25 @@ This ensures the model outputs `\boxed{answer}` which is required by hendrycks_m
 
 ---
 
-## math_grpo.jsonl — 16,726 examples
+## math_grpo.jsonl — 10,002 examples
 
 GRPO training set. Format: `{"question", "answer", "source"}`.
 
-Answers are raw strings (integers for GSM8K, raw LaTeX for MATH) verified at reward time using `math_verify`.
+Answers are raw strings (plain integers for GSM-Plus, raw LaTeX for MATH) verified at reward time using `math_verify`.
 
 | Source | Count | % | HuggingFace |
 |---|---|---|---|
-| GSM8K (main, train) | 7,473 | 44.7% | [`openai/gsm8k`](https://huggingface.co/datasets/openai/gsm8k) |
-| MATH Level 3 | 2,721 | 16.3% | [`qwedsacf/competition_math`](https://huggingface.co/datasets/qwedsacf/competition_math) |
-| MATH Level 4 | 2,904 | 17.4% | [`qwedsacf/competition_math`](https://huggingface.co/datasets/qwedsacf/competition_math) |
-| MATH Level 5 | 3,628 | 21.7% | [`qwedsacf/competition_math`](https://huggingface.co/datasets/qwedsacf/competition_math) |
+| MATH Level 5 | 3,628 | 36.3% | [`qwedsacf/competition_math`](https://huggingface.co/datasets/qwedsacf/competition_math) |
+| MATH Level 4 | 2,904 | 29.0% | [`qwedsacf/competition_math`](https://huggingface.co/datasets/qwedsacf/competition_math) |
+| MATH Level 3 (non-algebra) | ~2,070 | 20.7% | [`qwedsacf/competition_math`](https://huggingface.co/datasets/qwedsacf/competition_math) |
+| MATH Level 3 Algebra (anchor) | 400 | 4.0% | [`qwedsacf/competition_math`](https://huggingface.co/datasets/qwedsacf/competition_math) |
+| GSM-Plus | 1,000 | 10.0% | [`qintongli/GSM-Plus`](https://huggingface.co/datasets/qintongli/GSM-Plus) |
 
 **Construction:**
-- GSM8K: integer answer extracted from `#### N` line
-- MATH Level 1-2 excluded — too easy for meaningful GRPO signal on a model already trained via SFT. Level 3-5 kept to ensure the model is challenged enough to learn during rollouts while still getting enough correct answers to maintain a positive correctness gradient
-- Answers extracted from `\boxed{}` in solution (handles nested braces)
+- MATH Level 1-2 excluded — too easy, dead gradient after SFT. Level 3-5 kept.
+- MATH Level 3 Algebra capped at 400 as a reward anchor (model solves ~40% → healthy gradient). Full L3 algebra would dominate and skew topic balance.
+- GSM-Plus: 1K samples drawn from the test split (10,552 total). These are perturbed GSM8K variants — harder than plain GSM8K (~40-50% solve rate vs 66-70%), so they provide real reward signal as an easy-end anchor without flooding the dataset.
+- Plain GSM8K excluded — the SFT model already solves 66-70%, producing near-zero gradient variance.
+- NuminaMath olympiads excluded — rollout check showed only 1/13 (8%) problems with ≥1 correct rollout, too sparse to learn from.
+- Answers extracted from `\boxed{}` in solution (handles nested braces); GSM-Plus answers taken directly from the `answer` field.
 - Shuffled with seed 42

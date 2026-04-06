@@ -212,6 +212,24 @@ print(f"  MATH L5: {lvl_counts.get('level5', 0):,}")
 print(f"  MATH L4: {lvl_counts.get('level4', 0):,}")
 print(f"  MATH L3 (non-algebra full + algebra anchor {L3_ALGEBRA_CAP}): {lvl_counts.get('level3', 0):,}")
 
+# GSM-Plus — 1K samples as reward-signal anchor (harder than GSM8K, ~40-50% solve rate)
+GSM_PLUS_CAP = 1000
+from datasets import load_dataset as _load_hf
+gsm_plus_ds = _load_hf("qintongli/GSM-Plus", split="test")
+gsm_plus_rows = []
+for ex in gsm_plus_ds:
+    ans = str(ex["answer"]).strip()
+    if not ans:
+        continue
+    gsm_plus_rows.append({
+        "question": ex["question"].strip(),
+        "answer":   ans,
+        "source":   "gsm_plus",
+    })
+rng.shuffle(gsm_plus_rows)
+grpo_rows.extend(gsm_plus_rows[:GSM_PLUS_CAP])
+print(f"  GSM-Plus (sampled {GSM_PLUS_CAP}): {len(gsm_plus_rows[:GSM_PLUS_CAP]):,}")
+
 rng.shuffle(grpo_rows)
 save_jsonl(grpo_rows, GRPO_OUTPUT)
 
