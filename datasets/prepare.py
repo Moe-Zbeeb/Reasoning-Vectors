@@ -200,12 +200,12 @@ def _is_mc_answer(text: str) -> bool:
 # Total target: ~10,000
 # ---------------------------------------------------------------------------
 
-L5_CAP            = 2200
-L4_CAP            = 2200
-L3_ALGEBRA_CAP    = None   # use all (only 653)
-L3_NONALGEBRA_CAP = 1300
-GSM_PLUS_CAP      = 2200
-AMC_AIME_CAP      = 700
+L5_CAP            = 1500   # slightly lower to give L3 algebra more relative weight
+L4_CAP            = 1800
+L3_ALGEBRA_CAP    = None   # use all (only ~651 available)
+L3_NONALGEBRA_CAP = 1100
+GSM_PLUS_CAP      = 2000   # ~26% — GSM-style anchor
+AMC_AIME_CAP      = 650
 
 # ── MATH L3 / L4 / L5 ───────────────────────────────────────────────────────
 l5_rows, l4_rows, l3_alg_rows, l3_non_rows = [], [], [], []

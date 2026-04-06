@@ -89,9 +89,6 @@ def reward_correctness(prompts, completions, answer, **kwargs):
     """
     1.0  — math_verify confirms answer matches
     0.0  — wrong answer, no \\boxed{}, or parse error
-
-    No negative penalty — discourages exploration at 3B scale.
-    No format reward — SFT already locked in \\boxed{} format.
     """
     scores = []
     for c, true_ans in zip(completions, answer):
@@ -110,6 +107,18 @@ def reward_correctness(prompts, completions, answer, **kwargs):
             scores.append(0.0)
     return scores
 
+
+def reward_format(prompts, completions, answer, **kwargs):
+    """
+    0.1  — response contains a \\boxed{} expression (format preserved)
+    0.0  — no \\boxed{} found
+
+    Small bonus to prevent the model from dropping the SFT-learned format
+    under GRPO pressure. Intentionally tiny so correctness dominates.
+    """
+    return [0.1 if _extract_boxed(c[0]["content"]) is not None else 0.0
+            for c in completions]
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -118,8 +127,17 @@ def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-    raw_ds  = load_grpo_dataset(DATASET_PATH)
-    dataset = raw_ds.map(format_example, remove_columns=raw_ds.column_names)
+    raw_ds = load_grpo_dataset(DATASET_PATH)
+
+    # 90/10 train/eval split — eval runs every quarter epoch to catch early divergence
+    split    = raw_ds.train_test_split(test_size=0.1, seed=42)
+    train_ds = split["train"].map(format_example, remove_columns=split["train"].column_names)
+    eval_ds  = split["test"].map(format_example,  remove_columns=split["test"].column_names)
+
+    # Steps per epoch and quarter-epoch eval cadence
+    EFFECTIVE_BATCH = 4 * 4 * 2          # n_gpus × per_device_batch × grad_accum
+    steps_per_epoch = len(train_ds) // EFFECTIVE_BATCH
+    eval_steps      = max(10, steps_per_epoch // 4)
 
     print(f"Loading model from {MODEL_PATH} ...")
     model = AutoModelForCausalLM.from_pretrained(
@@ -139,8 +157,8 @@ def main():
         per_device_train_batch_size=4,
         gradient_accumulation_steps=2,       # effective = 4×4×2 = 32
         max_completion_length=1024,
-        num_train_epochs=3,
-        num_generations=8,
+        num_train_epochs=1,
+        num_generations=8,                   # 8 rollouts per prompt
         use_vllm=True,
         vllm_mode="colocate",
         vllm_gpu_memory_utilization=0.25,
@@ -152,6 +170,8 @@ def main():
         logging_steps=1,
         save_strategy="steps",
         save_steps=100,
+        eval_strategy="steps",
+        eval_steps=eval_steps,               # every ~quarter epoch
         report_to="none",
         logging_dir=str(LOGS_DIR),
         seed=42,
@@ -159,26 +179,27 @@ def main():
         remove_unused_columns=False,
     )
 
-    n_steps = len(dataset) // (training_args.per_device_train_batch_size * 4 * training_args.gradient_accumulation_steps)
-
     print("\n" + "=" * 60)
     print("GRPO TRAINING CONFIG")
     print("=" * 60)
     print(f"Model:              {MODEL_PATH}")
-    print(f"Dataset:            {DATASET_PATH}  ({len(dataset):,} examples)")
-    print(f"Rewards:            correctness only (math_verify, 1.0/0.0)")
+    print(f"Dataset:            {DATASET_PATH}  ({len(train_ds):,} train / {len(eval_ds):,} eval)")
+    print(f"Rewards:            correctness (1.0) + format (0.1)")
     print(f"Per-device batch:   {training_args.per_device_train_batch_size}")
     print(f"Grad accumulation:  {training_args.gradient_accumulation_steps}")
-    print(f"Effective batch:    {training_args.per_device_train_batch_size * 4 * training_args.gradient_accumulation_steps}")
-    print(f"Est. steps/epoch:   ~{n_steps}")
+    print(f"Effective batch:    {EFFECTIVE_BATCH}")
+    print(f"Rollouts/prompt:    {training_args.num_generations}")
+    print(f"Steps/epoch:        ~{steps_per_epoch}")
+    print(f"Eval every:         {eval_steps} steps  (~quarter epoch)")
     print(f"Save path:          {SAVE_PATH}")
     print("=" * 60 + "\n")
 
     trainer = GRPOTrainer(
         model=model,
-        reward_funcs=[reward_correctness],
+        reward_funcs=[reward_correctness, reward_format],
         args=training_args,
-        train_dataset=dataset,
+        train_dataset=train_ds,
+        eval_dataset=eval_ds,
         processing_class=tokenizer,
     )
     trainer.add_callback(JsonlLoggerCallback(LOGS_DIR / "train_metrics.jsonl"))
@@ -193,7 +214,8 @@ def main():
     summary = {
         "model_path": MODEL_PATH,
         "dataset": DATASET_PATH,
-        "num_samples": len(dataset),
+        "num_train_samples": len(train_ds),
+        "num_eval_samples": len(eval_ds),
         "final_loss": train_result.training_loss,
         "global_step": trainer.state.global_step,
         "model_saved_to": SAVE_PATH,
