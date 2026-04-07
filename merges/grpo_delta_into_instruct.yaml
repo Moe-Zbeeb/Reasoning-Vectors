@@ -1,0 +1,26 @@
+# Merge strategy: inject GRPO improvement into Instruct base
+#
+# Formula: Instruct + λ * (GRPO - SFT)
+#        = Instruct + GRPO - SFT
+#
+# This extracts what GRPO learned on top of SFT and adds it to Instruct,
+# preserving instruction-following while gaining math reasoning from GRPO.
+
+merge_method: linear
+dtype: bfloat16
+
+parameters:
+  normalize: false
+
+models:
+  - model: /home/zbibm/Reasoning-Vectors/models/Instella-3B-Instruct
+    parameters:
+      weight: 1.0
+
+  - model: /home/zbibm/Reasoning-Vectors/models/Instella-3B-Math
+    parameters:
+      weight: 1.0   # +GRPO
+
+  - model: /home/zbibm/Reasoning-Vectors/models/Instella-3B-Math-SFT
+    parameters:
+      weight: -1.0  # -SFT (isolates the GRPO delta)
