@@ -1,0 +1,15 @@
+models:
+  - model: Qwen/Qwen2.5-7B-Instruct
+    parameters:
+      weight: 1.0
+  - model: chrisluo5311/Qwen2.5-7B-Instruct-SFT-MetaMath-Merged-ROI
+    parameters:
+      weight: 1.0
+  - model: chrisluo5311/Qwen2.5-7B-Instruct-SFT-GRPO-Merged-ROI
+    parameters:
+      weight: -1.0
+merge_method: linear
+base_model: Qwen/Qwen2.5-7B-Instruct
+parameters:
+  normalize: false
+dtype: bfloat16

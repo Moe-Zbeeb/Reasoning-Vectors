@@ -1,0 +1,77 @@
+experiment:
+  name: sft-qwen25-0p5b-instruct-math100k-2ep
+  method: sft
+  mode: instruction_tuning
+
+model:
+  name_or_path: Qwen/Qwen2.5-0.5B-Instruct
+  trust_remote_code: true
+
+dataset:
+  source: json
+  train_split: train
+  eval_split: validation
+  data_files:
+    train: /workspace/reasoning_vectors/training_data/math_sft_100k/train.jsonl
+    validation: /workspace/reasoning_vectors/training_data/math_sft_100k/train.jsonl
+  columns:
+    prompt: prompt
+    completion: completion
+  max_eval_samples: 256
+
+peft:
+  enabled: false
+
+trainer:
+  output_dir: /workspace/reasoning_vectors/training_runs/sft_qwen25_0p5b_instruct_math100k_2ep
+  overwrite_output_dir: true
+  max_length: 4096
+  packing: false
+  completion_only_loss: true
+  assistant_only_loss: false
+  learning_rate: 0.00001
+  num_train_epochs: 2
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+  logging_steps: 10
+  save_strategy: steps
+  save_steps: 1000
+  save_total_limit: 3
+  eval_strategy: "no"
+  bf16: true
+  gradient_checkpointing: true
+  gradient_checkpointing_kwargs:
+    use_reentrant: false
+  ddp_find_unused_parameters: false
+  report_to:
+    - tensorboard
+  run_name: sft-qwen25-0p5b-instruct-math100k-2ep
+
+runtime:
+  save_model: true
+  push_to_hub: false
+  allow_prompt_loss: false
+
+launcher:
+  mode: deepspeed
+  gpu_ids:
+    - 0
+    - 1
+    - 2
+    - 3
+  num_processes: 4
+  mixed_precision: bf16
+  main_process_port: 29615
+  env:
+    TOKENIZERS_PARALLELISM: "false"
+    TORCH_NCCL_ASYNC_ERROR_HANDLING: "1"
+    HF_HOME: /workspace/hf_cache
+    HUGGINGFACE_HUB_CACHE: /workspace/hf_cache/hub
+    HF_DATASETS_CACHE: /workspace/hf_cache/datasets
+  deepspeed:
+    zero_stage: 2

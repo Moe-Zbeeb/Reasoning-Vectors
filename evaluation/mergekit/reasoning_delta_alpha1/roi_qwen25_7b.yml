@@ -1,0 +1,15 @@
+models:
+  - model: /home/zbibm/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct/snapshots/a09a35458c702b33eeacc393d103063234e8bc28
+    parameters:
+      weight: 1.0
+  - model: /home/zbibm/.cache/huggingface/hub/models--chrisluo5311--Qwen2.5-7B-Instruct-SFT-MetaMath-Merged-ROI/snapshots/e19091b030b4ab663c09812ae0d72b27ce79c725
+    parameters:
+      weight: -1.0
+  - model: /home/zbibm/.cache/huggingface/hub/models--chrisluo5311--Qwen2.5-7B-Instruct-SFT-GRPO-Merged-ROI/snapshots/5cb55d12bf3c948c488cbfff9fcac7f63cc21079
+    parameters:
+      weight: 1.0
+merge_method: linear
+base_model: /home/zbibm/.cache/huggingface/hub/models--Qwen--Qwen2.5-7B-Instruct/snapshots/a09a35458c702b33eeacc393d103063234e8bc28
+parameters:
+  normalize: false
+dtype: bfloat16

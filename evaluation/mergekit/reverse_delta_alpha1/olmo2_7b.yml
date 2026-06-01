@@ -1,0 +1,15 @@
+models:
+  - model: allenai/OLMo-2-1124-7B
+    parameters:
+      weight: 1.0
+  - model: allenai/OLMo-2-1124-7B-SFT
+    parameters:
+      weight: 1.0
+  - model: sunblaze-ucb/OLMo-2-7B-SFT-GRPO-MATH-1EPOCH
+    parameters:
+      weight: -1.0
+merge_method: linear
+base_model: allenai/OLMo-2-1124-7B
+parameters:
+  normalize: false
+dtype: bfloat16
