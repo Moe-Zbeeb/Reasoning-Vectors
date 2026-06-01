@@ -82,3 +82,34 @@ seed: 0
 | rl | 80.03% | **95.20%** | 84.39% | 69.52% | 64.78% | 86.11% | 91.73% | 68.50% |
 | base | 73.17% | 91.32% | 75.53% | 64.30% | 55.81% | 75.74% | 87.60% | 61.90% |
 | sft | 68.24% | 88.88% | 71.94% | 55.32% | 47.95% | 72.96% | 88.63% | 52.01% |
+
+## Qwen GSM8K 1.5B MATH LightEval run
+
+Run date: 2026-06-02
+
+Formula: `theta_out = theta_base + (theta_GRPO - theta_SFT)`
+
+Dataset: `DigitalLearningGmbH/MATH-lighteval`, full MATH test split, 5000 examples.
+
+Evaluation setup:
+
+- LightEval custom `math_cot:*` tasks, 0-shot.
+- Metric: LightEval `extractive_match`.
+- Generation: temperature 0, top_p 1.0, seed 0, max_new_tokens 3000.
+- Runtime: vLLM, bfloat16, 1 H200 GPU per model, 4 models evaluated in parallel.
+- Model max length: 4096. Long prompts were truncated to preserve the 3000-token generation budget.
+- This is not the built-in LightEval MATH maj@4 task; it is a deterministic single-sample run.
+
+| Model | Avg | Delta vs Base | Algebra | Count/Prob | Geometry | Int. Algebra | Num Theory | Prealgebra | Precalc |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen/Qwen2.5-Math-1.5B | 6.67 | +0.00 | 3.88 | 10.76 | 4.18 | 6.87 | 5.74 | 9.07 | 6.23 |
+| michaelbzhu/Qwen2.5-Math-1.5B-GSM8K-SFT | 5.93 | -0.75 | 4.04 | 8.86 | 3.76 | 8.19 | 4.81 | 6.31 | 5.49 |
+| michaelbzhu/Qwen2.5-Math-1.5B-GSM8K-GRPO | 6.18 | -0.50 | 3.79 | 9.07 | 4.18 | 7.09 | 4.63 | 7.35 | 7.14 |
+| base + (GRPO - SFT) | 6.53 | -0.15 | 4.13 | 9.70 | 3.13 | 7.42 | 6.30 | 8.04 | 6.96 |
+
+Result files on RunPod:
+
+- `/workspace/reasoning_vectors_eval/eval_runs/base/results/Qwen/Qwen2.5-Math-1.5B/results_2026-06-01T22-41-29.299865.json`
+- `/workspace/reasoning_vectors_eval/eval_runs/sft/results/michaelbzhu/Qwen2.5-Math-1.5B-GSM8K-SFT/results_2026-06-01T22-40-01.094100.json`
+- `/workspace/reasoning_vectors_eval/eval_runs/grpo/results/michaelbzhu/Qwen2.5-Math-1.5B-GSM8K-GRPO/results_2026-06-01T22-39-39.316784.json`
+- `/workspace/reasoning_vectors_eval/eval_runs/merged/results/workspace/reasoning_vectors_eval/merged/qwen_gsm8k_1p5b/results_2026-06-01T22-39-04.001406.json`
