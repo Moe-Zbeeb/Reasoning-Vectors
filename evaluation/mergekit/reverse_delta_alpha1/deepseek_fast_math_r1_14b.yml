@@ -1,0 +1,15 @@
+models:
+  - model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+    parameters:
+      weight: 1.0
+  - model: zbeeb/deepseek-r1-distill-qwen-14b-fast-math-r1-sft-10ep
+    parameters:
+      weight: 1.0
+  - model: RabotniKuma/Fast-Math-R1-14B
+    parameters:
+      weight: -1.0
+merge_method: linear
+base_model: deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+parameters:
+  normalize: false
+dtype: bfloat16
